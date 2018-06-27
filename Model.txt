@@ -1,0 +1,42 @@
+
+    model {
+    for (i in 1:n){
+    y[i] ~ dnorm (y.hat[i], tau.y)
+    
+    y.hat[i] <- alpha[group[i]] + beta[group[i]] * x[i]  
+    
+    }
+    
+    tau.y <- pow(sigma.y, -2)
+    sigma.y ~ dunif (0, 10)
+    
+    # Level-2 of the model
+    for(j in 1:J){
+    alpha[j] <- BB[j,1]
+    beta[j] <- BB[j,2]
+    
+    BB[j,1:K] ~ dmnorm (BB.hat[j,], Tau.B[,])
+    BB.hat[j,1] <- mu.a 
+    BB.hat[j,2] <- mu.b 
+    
+    }
+    
+    
+    mu.a ~ dnorm(0,0.0001)
+    mu.b ~ dnorm(0,0.0001)
+    
+    
+    # Model variance-covariance
+    Tau.B[1:K,1:K] ~ dwish(W[,], df)
+    df <- K+1
+    Sigma.B[1:K,1:K] <- inverse(Tau.B[,])
+    for (k in 1:K){
+    for (k.prime in 1:K){
+    rho.B[k,k.prime] <- Sigma.B[k,k.prime]/
+    sqrt(Sigma.B[k,k]*Sigma.B[k.prime,k.prime])
+    }
+    sigma.B[k] <- sqrt(Sigma.B[k,k])
+    }
+    
+    }
+    
