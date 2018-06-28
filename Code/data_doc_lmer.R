@@ -6,6 +6,7 @@ library(dplyr)
 library(LAGOS)
 data<-lagos_load(version="1.087.1")
 
+write.csv(epinut, file="dataforjf.csv")
 doc.dat <- na.omit(data$epi.nutr[, c("lagoslakeid", "doc", "sampleyear")])
 doc.dat <- doc.dat[doc.dat$sampleyear>1979,]
 
