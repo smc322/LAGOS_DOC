@@ -5,7 +5,7 @@ library(dplyr)
 library(LAGOS)
 
 data<-lagos_load(version="1.087.1")
-output<-readRDS(file="Datasets/JAGS_DOC.rds")
+output<-readRDS(file="Datasets/JAGS_Color.rds")
 
 cordsids<-data$locus[,c("lagoslakeid", "nhd_lat", "nhd_long")]
 outputcords<-merge(output, cordsids, by="lagoslakeid", all.x=T, all.y=F)

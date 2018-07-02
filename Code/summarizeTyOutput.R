@@ -10,3 +10,16 @@ lagoslakeid<-unique(input$lagoslakeid)
 dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
 
 saveRDS(dataforanalysis, file="Datasets/JAGS_DOC.rds")
+
+
+#same thing for t color
+
+slopemean= apply(slopes, 2, mean)
+
+slopesum = data.frame(cbind(slopeProbs, slopeSign, slopemean))
+
+input<-readRDS('Datasets/ColorTdata.rds')
+lagoslakeid<-unique(input$lagoslakeid)
+dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
+
+saveRDS(dataforanalysis, file="Datasets/JAGS_Color.rds")
