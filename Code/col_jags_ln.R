@@ -5,7 +5,12 @@ library(jagsUI)
 library(MCMCpack)
 library(arm)
 
-dat <- readRDS('Datasets/doc_july18.rds')
+dat <- readRDS('Datasets/color_july18.rds')
+#realized some lakes have negative color vals (perhaps from color a conversion - oops. toss those 60 lakes for now to log and we can figure it out if we can add them in later)
+negs<-dat[dat$ly.med<0,]
+dat<-dat[!dat$lagoslakeid %in% negs$lagoslakeid, ]
+
+dat$ly.med=log(dat$ly.med+.01)
 head(dat)
 dim(dat)
 length(unique(dat$lagoslakeid))

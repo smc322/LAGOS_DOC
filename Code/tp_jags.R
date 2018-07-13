@@ -5,7 +5,7 @@ library(jagsUI)
 library(MCMCpack)
 library(arm)
 
-dat <- readRDS('Datasets/doc_july18.rds')
+dat <- readRDS('Datasets/tp_july18.rds')
 head(dat)
 dim(dat)
 length(unique(dat$lagoslakeid))

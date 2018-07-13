@@ -6,6 +6,7 @@ library(MCMCpack)
 library(arm)
 
 dat <- readRDS('Datasets/doc_july18.rds')
+dat$ly.med=log(dat$ly.med)
 head(dat)
 dim(dat)
 length(unique(dat$lagoslakeid))
