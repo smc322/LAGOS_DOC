@@ -62,3 +62,32 @@ lagoslakeid<-unique(input$lagoslakeid)
 dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
 
 saveRDS(dataforanalysis, file="Datasets/JAGS_NO3_july18.rds")
+
+
+#### summarize precip trends that accompany DOC and color trends (matched yearly precip data for the lake year median DOC data, then color data)
+
+# for precip associated with DOC
+
+slopemean= apply(slopes, 2, mean)
+
+slopesum = data.frame(cbind(slopeProbs, slopeSign, slopemean))
+
+input<-readRDS('Datasets/precipdoc_july18.rds')
+lagoslakeid<-unique(input$lagoslakeid)
+dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
+
+saveRDS(dataforanalysis, file="Datasets/JAGS_PPTDOC_july18.rds")
+
+
+
+# and associated w/ color
+
+slopemean= apply(slopes, 2, mean)
+
+slopesum = data.frame(cbind(slopeProbs, slopeSign, slopemean))
+
+input<-readRDS('Datasets/precipcol_july18.rds')
+lagoslakeid<-unique(input$lagoslakeid)
+dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
+
+saveRDS(dataforanalysis, file="Datasets/JAGS_PPTCOL_july18.rds")
