@@ -21,24 +21,37 @@ no3<-readRDS(file="Datasets/JAGS_NO3_july18.rds")
 locus<-lagos$locus
 cordsids<-unique(locus[,c("lagoslakeid", "nhd_lat", "nhd_long")])
 
-mapofvar<- function (varoutput, filename)  {
-  varoutput$slopeProbs[which(varoutput$slopeSign==0)] <- 
-    abs(varoutput$slopeProbs[which(varoutput$slopeSign==0)]-1)
+doc$slopeProbs[which(doc$slopeSign==0)] <- 
+  abs(doc$slopeProbs[which(doc$slopeSign==0)]-1)
+
+col$slopeProbs[which(col$slopeSign==0)] <- 
+  abs(col$slopeProbs[which(col$slopeSign==0)]-1)
+
+color.gradient <- function(x, colors=c("blue","white","red"), colsteps=100) {
+  return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+}
+
+docloc<-merge(doc, cordsids, by="lagoslakeid", all.x=T, all.y=F)
+
+colloc<-merge(col, cordsids, by="lagoslakeid", all.x=T, all.y=F)
+
+
+pdf("Figures/DOCColProbmaps.pdf", width=13, height=8)
+par(mfrow=c(2,1))
+
   
-  color.gradient <- function(x, colors=c("blue","white","red"), colsteps=100) {
-    return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
-  }
-  
-  varloc<-merge(varoutput, cordsids, by="lagoslakeid", all.x=T, all.y=F)
-  
-  png(filename, width=13, height=5, units="in")
   map(database = "state", regions=c("Minnesota", "Wisconsin", "Michigan","Pennsylvania","New York",
                                     "New Jersey", "Connecticut","Rhode Island","Massachusetts",
-                                    "Vermont", "New Hampshire","Maine"), fill = TRUE, col="white", fg="grey30", lwd=1,mar=c(0,0,1,0),oma=c(0,0,0,0))
-  points(varloc$nhd_long, varloc$nhd_lat, pch=21, col="black", bg=color.gradient(varoutput$slopeProbs), cex=1)
+                                    "Vermont", "New Hampshire","Maine"), fill = TRUE, col="white", fg="grey30", lwd=1)
+  points(docloc$nhd_long, docloc$nhd_lat, pch=21, col="black", bg=color.gradient(doc$slopeProbs), cex=1)
+  
+  map(database = "state", regions=c("Minnesota", "Wisconsin", "Michigan","Pennsylvania","New York",
+                                    "New Jersey", "Connecticut","Rhode Island","Massachusetts",
+                                    "Vermont", "New Hampshire","Maine"), fill = TRUE, col="white", fg="grey30", lwd=1)
+  points(colloc$nhd_long, colloc$nhd_lat, pch=21, col="black", bg=color.gradient(col$slopeProbs), cex=1)
+  
   dev.off()
   
-}
 
 mapofvar(doc, "Figures/DOCSlopeProbMap.pdf")
 mapofvar(col, "Figures/ColSlopeProbMap.pdf")
