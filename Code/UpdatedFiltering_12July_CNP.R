@@ -86,6 +86,7 @@ data.tp.yr<-datafilter("tp")
 data.col.yr<-datafilter("colort_combined")
 data.tn.yr<-datafilter("tn_combined")
 data.no3.yr<-datafilter("no2no3")
+data.chla.yr<-datafilter("chla")
 
 ##make map of above
 
@@ -111,6 +112,7 @@ mapofvar(data.tp.yr, "Figures/TP_map.pdf")
 mapofvar(data.col.yr, "Figures/Col_map.pdf")
 mapofvar(data.tn.yr, "Figures/TN_map.pdf")
 mapofvar(data.no3.yr, "Figures/NO3_map.pdf")
+mapofvar(data.chla.yr, "Figures/Chl_map.pdf")
 
 #wtf to do about MI?
 doccords<-merge(data.doc.yr, cordsids, by="lagoslakeid", all.x=T, all.y=F)
@@ -156,9 +158,15 @@ no3.dat.analysis<-no3hu8[no3hu8$hu8_zoneid %in% includehu8$hu8_zoneid, ]
 mapofvar(no3.dat.analysis, "Figures/NO3Analysis.pdf")
 
 
+chlhu8<-merge(data.chla.yr, lakehu8, by="lagoslakeid", all.x=T, all.y=F)
+chla.dat.analysis<-chlhu8[chlhu8$hu8_zoneid %in% includehu8$hu8_zoneid, ]
+mapofvar(chla.dat.analysis, "Figures/ChlaAnalysis.pdf")
+
+
 #save datasets for analysis!
 saveRDS(data.col.yr, file="Datasets/color_july18.rds")
 saveRDS(data.doc.yr, file="Datasets/doc_july18.rds")
 saveRDS(tp.dat.analysis, file="Datasets/tp_july18.rds")
 saveRDS(tn.dat.analysis, file="Datasets/tn_july18.rds")
 saveRDS(no3.dat.analysis, file="Datasets/no3_july18.rds")
+saveRDS(chla.dat.analysis, file="Datasets/chl_july18.rds")
