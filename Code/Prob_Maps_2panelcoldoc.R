@@ -36,19 +36,19 @@ docloc<-merge(doc, cordsids, by="lagoslakeid", all.x=T, all.y=F)
 colloc<-merge(col, cordsids, by="lagoslakeid", all.x=T, all.y=F)
 
 
-pdf("Figures/DOCColProbmaps.pdf", width=13, height=8)
-par(mfrow=c(2,1))
+pdf("Figures/DOCColProbmaps.pdf", width=12, height=14)
+par(mfrow=c(2,1), oma=c(0,0,0,0), mar=c(0,0,0,0))
 
   
-  map(database = "state", regions=c("Minnesota", "Wisconsin", "Michigan","Pennsylvania","New York",
+  map(database = "state", regions=c("Minnesota", "Wisconsin", "Iowa", "Illinois", "Indiana", "Ohio", "Michigan","Pennsylvania","New York",
                                     "New Jersey", "Connecticut","Rhode Island","Massachusetts",
                                     "Vermont", "New Hampshire","Maine"), fill = TRUE, col="white", fg="grey30", lwd=1)
-  points(docloc$nhd_long, docloc$nhd_lat, pch=21, col="black", bg=color.gradient(doc$slopeProbs), cex=1)
+  points(docloc$nhd_long, docloc$nhd_lat, pch=21, col="black", bg=color.gradient(doc$slopeProbs), cex=1.1)
   
-  map(database = "state", regions=c("Minnesota", "Wisconsin", "Michigan","Pennsylvania","New York",
+  map(database = "state", regions=c("Minnesota", "Wisconsin", "Iowa", "Illinois", "Indiana", "Ohio", "Michigan","Pennsylvania","New York",
                                     "New Jersey", "Connecticut","Rhode Island","Massachusetts",
                                     "Vermont", "New Hampshire","Maine"), fill = TRUE, col="white", fg="grey30", lwd=1)
-  points(colloc$nhd_long, colloc$nhd_lat, pch=21, col="black", bg=color.gradient(col$slopeProbs), cex=1)
+  points(colloc$nhd_long, colloc$nhd_lat, pch=21, col="black", bg=color.gradient(col$slopeProbs), cex=1.1)
   
   dev.off()
   

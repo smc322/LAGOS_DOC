@@ -3,16 +3,26 @@ col<-readRDS(file="Datasets/JAGS_Color_july18.rds")
 tn<-readRDS(file="Datasets/JAGS_TN_july18.rds")
 tp<-readRDS(file="Datasets/JAGS_TP_july18.rds")
 no3<-readRDS(file="Datasets/JAGS_NO3_july18.rds")
+chl<-readRDS(file="Datasets/JAGS_Chla_july18.rds")
 
 doc$var="doc"
 col$var="color"
 tn$var="tn"
 tp$var="tp"
 no3$var="no3"
+chl$var="chl"
 
 results.all=rbind(doc, col, tn, tp, no3)
 
 results.all$pctchg<-results.all$slopemean*100
+
+results.c<-rbind(doc, col)
+
+results.c$pctchg<-results.c$slopemean*100
+
+##save results all to combine w geo data for JF
+saveRDS(results.all, file="Datasets/SlopesAllVars.rds")
+saveRDS(results.c, file="Datasets/SlopesCVars.rds")
 
 boxplot(pctchg~var, data=results.all)
 axis(1, log="y")
