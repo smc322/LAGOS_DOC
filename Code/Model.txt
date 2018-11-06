@@ -22,11 +22,15 @@
     
     }
     
-    
+   
+
+# Bayesian LASSO -  a Laplace (double exponential) prior
     for(k in 1:ncovs){
-      b[k] ~ dnorm(0, 0.001)
+      b[k] ~ ddexp(0, lambda1)
     }
 
+# Hyper-prior on lambda
+    lambda1 ~ dexp(10)
     mu.a ~ dnorm(0,0.0001)
     mu.b ~ dnorm(0,0.0001)
     

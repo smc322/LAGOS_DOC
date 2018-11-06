@@ -55,6 +55,13 @@ length(unique(dat$lagoslakeid))
 dat <- dat[order(dat$lagoslakeid),] 
 cov_subset <- cov_subset[order(cov_subset$lagoslakeid),] 
 
+# Transform few covariates
+cov_subset[, maxdepth:=log(maxdepth)]
+cov_subset[, lake_area_ha:=log(lake_area_ha)]
+cov_subset[, wetlands:=logit(wetlands)]
+cov_subset[, agri:=logit(agri)]
+cov_subset[, urban:=logit(urban)]
+
 # Standardize covariates
 changeCols <- colnames(cov_subset)[9:21]
 cov_subset[,(changeCols):= lapply(.SD, scale), .SDcols = changeCols]
@@ -94,11 +101,15 @@ cat("
     
     }
     
-    
+   
+
+# Bayesian LASSO -  a Laplace (double exponential) prior
     for(k in 1:ncovs){
-      b[k] ~ dnorm(0, 0.001)
+      b[k] ~ ddexp(0, lambda1)
     }
 
+# Hyper-prior on lambda
+    lambda1 ~ dexp(10)
     mu.a ~ dnorm(0,0.0001)
     mu.b ~ dnorm(0,0.0001)
     
