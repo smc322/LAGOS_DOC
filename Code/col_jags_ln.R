@@ -24,14 +24,13 @@ length(unique(dat$lagoslakeid))
 
 
 #### Read in Covariate data
-covs <- fread('../Datasets/dataandcovarsJF_17Sept.csv')
+covs <- readRDS('../Datasets/ColorCovars_Nov18.rds')
 head(covs)
 dim(covs)
 
-covs[, lagoslakeid:=as.factor(lagoslakeid)]
+covs <- data.table(covs)
 
-# Grab lakes with color data
-covs <- covs[var=='color']
+covs[, lagoslakeid:=as.factor(lagoslakeid)]
 
 # Select covariates for lakes in dat
 cov_subset <- covs[covs$lagoslakeid %in% dat$lagoslakeid,]
@@ -45,6 +44,7 @@ cov_subset <- cov_subset[!is.na(urban)]
 summary(cov_subset)
 cov_subset <- cov_subset[!is.na(maxdepth)]
 cov_subset <- cov_subset[!is.na(so4changepct)]
+cov_subset <- cov_subset[!is.na(lakemedp)]
 summary(cov_subset)
 dim(cov_subset)
 
@@ -61,15 +61,15 @@ cov_subset[, lake_area_ha:=log(lake_area_ha)]
 cov_subset[, wetlands:=logit(wetlands)]
 cov_subset[, agri:=logit(agri)]
 cov_subset[, urban:=logit(urban)]
+cov_subset[, forest:=logit(forest)]
+cov_subset[, lakemedp:=log(lakemedp+0.1)]
 
 # Standardize covariates
-changeCols <- colnames(cov_subset)[9:21]
+changeCols <- colnames(cov_subset)[c(2,4:8,11:16,18,20)]
 cov_subset[,(changeCols):= lapply(.SD, scale), .SDcols = changeCols]
 
 # Covariate matrix for modeling slopes
-x_mat <- as.matrix(cov_subset[,9:21])
-# Remove lat and long
-x_mat <- x_mat[,-(7:8)]
+x_mat <- as.matrix(cov_subset[,c(2,4:8,11:16,18,20)])
 colnames(x_mat)
 cor(x_mat)
 dim(x_mat)
@@ -83,6 +83,7 @@ cat("
     y[i] ~ dnorm (y.hat[i], tau.y)
     
     y.hat[i] <- alpha[group[i]] + beta[group[i]] * x[i]  
+    e.y[i] <- y[i] - y.hat[i]
     
     }
     
@@ -96,8 +97,12 @@ cat("
     
     BB[j,1:K] ~ dmnorm (BB.hat[j,], Tau.B[,])
     BB.hat[j,1] <- mu.a 
+    e.a[j] <- alpha[j] - BB.hat[j,1]
     BB.hat[j,2] <- mu.b + b[1] * z[j, 1] + b[2] * z[j, 2] + b[3] * z[j, 3] +  b[4] * z[j, 4] +  b[5] * z[j, 5] +  b[6] * z[j, 6] +
-                          b[7] * z[j, 7] + b[8] * z[j, 8] + b[9] * z[j, 9] +  b[10] * z[j, 10] +  b[11] * z[j, 11] 
+                          b[7] * z[j, 7] + b[8] * z[j, 8] + b[9] * z[j, 9] +  b[10] * z[j, 10] +  b[11] * z[j, 11] +  b[12] * z[j, 12]  +
+                          b[13] * z[j, 13] +  b[14] * z[j, 14]  
+    e.b[j] <- beta[j] - BB.hat[j,2]
+
     
     }
     
@@ -156,9 +161,8 @@ inits <- function (){
         Tau.B=rwish(K+1,diag(K))	 )
 }
 
-
 # Parameters monitored
-params1 <- c("BB","mu.a","mu.b", "sigma.y","sigma.B","rho.B","b")
+params1 <- c("BB","mu.a","mu.b", "sigma.y","sigma.B","rho.B","b","alpha","beta","e.a","e.b","e.y")
 
 
 # MCMC settings
@@ -172,8 +176,8 @@ out1 <- jags(data, inits, params1, "Model.txt", n.chains = nc,
              n.thin = nt, n.iter = ni, n.burnin = nb, parallel = T)
 
 # Check model convergence
-out.mcmc <- as.mcmc(out1)
-S <- ggs(out.mcmc$samples)
+# out.mcmc <- as.mcmc(out1)
+# S <- ggs(out.mcmc$samples)
 # ggs_traceplot(S, family="mu.a")
 # ggs_traceplot(S, family="mu.b")
 # ggs_traceplot(S, family="^b")
@@ -183,6 +187,18 @@ S <- ggs(out.mcmc$samples)
 
 # Summarize posteriors
 print(out1, dig = 3)
+
+y = dat$ly.med
+# data level summaries
+rsquared.y <- 1 - mean (apply (out1$sims.list$e.y, 1, var))/ var (y)
+# summaries for the intercept model
+rsquared.a <- 1 - mean (apply (out1$sims.list$e.a, 1, var))/ mean (apply (out1$sims.list$alpha, 1, var))
+# summaries for the slope model
+rsquared.b <- 1 - mean (apply (out1$sims.list$e.b, 1, var))/ mean (apply (out1$sims.list$beta, 1, var))
+print (round (c (rsquared.y, rsquared.a, rsquared.b), 2))
+
+
+
 
 BugsOut <- out1$summary
 write.csv(BugsOut, "BUGSutputSummary.csv", row.names = T)
@@ -244,7 +260,7 @@ color[beta_sig_indicator==1] <- "blue"
 pdf("col_cov_plot.pdf", height = 6, width = 6)
 def.par <- par(no.readonly = TRUE)
 
-nf <- layout(matrix(c(1:12),nrow=4,ncol=3,byrow=TRUE),  TRUE) 
+nf <- layout(matrix(c(1:15),nrow=5,ncol=3,byrow=TRUE),  TRUE) 
 # layout.show(nf)
 par(oma=c(2,3.0,0,1),mai=c(0.10,0.1,0.05,0) )
 
