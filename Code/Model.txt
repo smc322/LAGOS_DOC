@@ -1,0 +1,56 @@
+
+    model {
+    for (i in 1:n){
+    y[i] ~ dnorm (y.hat[i], tau.y)
+    
+    y.hat[i] <- alpha[group[i]] + beta[group[i]] * x[i]  
+    e.y[i] <- y[i] - y.hat[i]
+    
+    }
+    
+    tau.y <- pow(sigma.y, -2)
+    sigma.y ~ dunif (0, 10)
+    
+    # Level-2 of the model
+    for(j in 1:J){
+    alpha[j] <- BB[j,1]
+    beta[j] <- BB[j,2]
+    
+    BB[j,1:K] ~ dmnorm (BB.hat[j,], Tau.B[,])
+    BB.hat[j,1] <- mu.a 
+    e.a[j] <- alpha[j] - BB.hat[j,1]
+    BB.hat[j,2] <- mu.b + b[1] * z[j, 1] + b[2] * z[j, 2] + b[3] * z[j, 3] +  b[4] * z[j, 4] +  b[5] * z[j, 5] +  b[6] * z[j, 6] +
+    b[7] * z[j, 7] + b[8] * z[j, 8] + b[9] * z[j, 9] +  b[10] * z[j, 10] +  b[11] * z[j, 11] +  b[12] * z[j, 12]  +
+    b[13] * z[j, 13] +  b[14] * z[j, 14]  
+    e.b[j] <- beta[j] - BB.hat[j,2]
+    
+    
+    }
+    
+    
+    
+    # Bayesian LASSO -  a Laplace (double exponential) prior
+    for(k in 1:ncovs){
+    b[k] ~ ddexp(0, lambda1)
+    }
+    
+    # Hyper-prior on lambda
+    lambda1 ~ dexp(10)
+    mu.a ~ dnorm(0,0.0001)
+    mu.b ~ dnorm(0,0.0001)
+    
+    
+    # Model variance-covariance
+    Tau.B[1:K,1:K] ~ dwish(W[,], df)
+    df <- K+1
+    Sigma.B[1:K,1:K] <- inverse(Tau.B[,])
+    for (k in 1:K){
+    for (k.prime in 1:K){
+    rho.B[k,k.prime] <- Sigma.B[k,k.prime]/
+    sqrt(Sigma.B[k,k]*Sigma.B[k.prime,k.prime])
+    }
+    sigma.B[k] <- sqrt(Sigma.B[k,k])
+    }
+    
+    }
+    

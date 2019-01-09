@@ -26,7 +26,7 @@ mtext("Change in SO4 Dep 1985-2010", side=1, line=2)
 abline(h=0)
 dev.off()
 
-png("Figures/DOCColTrendsSO4depPCT.png", width=6, height=8, units='in', res=300)
+png("Figures/Fig3_DOCColTrendsSO4depPCT.png", width=6, height=8, units='in', res=300)
 par(mfrow=c(2,1), oma=c(4,4,1,1), mar=c(0,0,0,0))
 plot(doc.dep$SM.doc*100~doc.dep$so4changepct, cex=doc.dep$doc.nobs/20, pch=21, ylab="", xlab="", yaxt='n', xaxt='n', ylim=c(-11, 11), xlim=c(-80, -30), bg=rgb(169,169,169,150, max=255), col="black")
 axis(2, at=c(-10, 0, 10))
