@@ -18,8 +18,21 @@ x5 <- no3$slopemean*100
 x6 <- chl$slopemean*100
 
 png("Figures/SlopesViolin.png", width=6, height=5, units='in', res=300)
-vioplot(x1, x2, x3, x4, x5,x6, names=c("DOC", "Color", "TP", "TN", "NO3", "Chla"), 
-        col="lightgrey")
+par(mar=c(2,3,1,1))
+vioplot(x1, x2, x3, x4, x5,x6, names=c(expression("DOC"[""]), expression("Color"[""]), expression("TP"[""]), expression("TN"[""]), expression("NO"[3]), expression("Chla"[""])), 
+        col="lightgrey", ylim=c(-45, 40))
+text(1, 14, "73%")
+text(1, -9, "27%")
+text(2, 13, "60%")
+text(2, -41, "40%")
+text(3, 35, "53%")
+text(3, -14, "47%")
+text(4, 10, "46%")
+text(4, -15, "54%")
+text(5, 37, "42%")
+text(5, -42, "58%")
+text(6, 14, "44%")
+text(6, -15, "56%")
 mtext("% Change Per Year", side=2, line=2)
 abline(h=0)
 dev.off()
