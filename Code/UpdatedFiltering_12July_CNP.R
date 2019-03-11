@@ -28,9 +28,10 @@ abline(a=-5.145, b=.7214)
 
 data$colort_calc<-(data$colora*.7214)-5.145
 data$colort_calc[which(data$programtype=="State Agency")]<-NA
+data$colort_calc[which(data$colort_calc<10)]<-NA
 data$colort_combined=data$colort
 data$colort_combined[which(is.na(data$colort_combined))] = data$colort_calc[which(is.na(data$colort_combined))]
-
+data$colort_combined[which(data$colort_combined<.5)]<-NA
 
 
 datafilter <- function(var) {
@@ -109,7 +110,7 @@ dev.off()
 
 mapofvar(data.doc.yr, "Figures/DOC_map.pdf")
 mapofvar(data.tp.yr, "Figures/TP_map.pdf")
-mapofvar(data.col.yr, "Figures/Col_map.pdf")
+mapofvar(data.col.yr, "Figures/old/Col_map.pdf")
 mapofvar(data.tn.yr, "Figures/TN_map.pdf")
 mapofvar(data.no3.yr, "Figures/NO3_map.pdf")
 mapofvar(data.chla.yr, "Figures/Chl_map.pdf")
@@ -164,7 +165,7 @@ mapofvar(chla.dat.analysis, "Figures/ChlaAnalysis.pdf")
 
 
 #save datasets for analysis!
-saveRDS(data.col.yr, file="Datasets/color_july18.rds")
+saveRDS(data.col.yr, file="Datasets/color_mar19.rds")
 saveRDS(data.doc.yr, file="Datasets/doc_july18.rds")
 saveRDS(tp.dat.analysis, file="Datasets/tp_july18.rds")
 saveRDS(tn.dat.analysis, file="Datasets/tn_july18.rds")

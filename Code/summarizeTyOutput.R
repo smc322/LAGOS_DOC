@@ -23,7 +23,7 @@ input=dat
 lagoslakeid<-unique(input$lagoslakeid)
 dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
 
-saveRDS(dataforanalysis, file="Datasets/JAGS_Color_july18.rds")
+saveRDS(dataforanalysis, file="Datasets/JAGS_Color_mar19.rds")
 
 # and P (function, anyone?)
 
@@ -99,11 +99,11 @@ slopemean= apply(slopes, 2, mean)
 
 slopesum = data.frame(cbind(slopeProbs, slopeSign, slopemean))
 
-input<-readRDS('Datasets/precipcol_july18.rds')
+input<-readRDS('Datasets/precipcol_mar19.rds')
 lagoslakeid<-unique(input$lagoslakeid)
 dataforanalysis<-data.frame(cbind(lagoslakeid, slopesum))
 
-saveRDS(dataforanalysis, file="Datasets/JAGS_PPTCOL_july18.rds")
+saveRDS(dataforanalysis, file="Datasets/JAGS_PPTCOL_mar19.rds")
 
 
 #### summarize temperature trends that accompany DOC and color trends (matched yearly tmean data for the lake year median DOC data, then color data)

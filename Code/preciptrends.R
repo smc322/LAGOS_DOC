@@ -122,7 +122,7 @@ saveRDS(precip.model, "Datasets/precipdoc_july18.rds")
 
 #match precip anom for color same way
 
-col.dat<-readRDS("Datasets/color_july18.rds")
+col.dat<-readRDS("Datasets/color_mar19.rds")
 hu12.llid<-lagos$locus[,c("lagoslakeid", "hu12_zoneid")]
 col.hu12<-merge(col.dat, hu12.llid, by="lagoslakeid")
 col.ppt<-merge(col.hu12, pptwmed, by=c("hu12_zoneid", "sampleyear"))
@@ -131,4 +131,4 @@ col.ppt<-merge(col.hu12, pptwmed, by=c("hu12_zoneid", "sampleyear"))
 
 precip.model<-col.ppt[,c(2,3,5,8)]
 names(precip.model)=c("sampleyear", "lagoslakeid", "year1", "ly.med")
-saveRDS(precip.model, "Datasets/precipcol_july18.rds")
+saveRDS(precip.model, "Datasets/precipcol_mar19.rds")

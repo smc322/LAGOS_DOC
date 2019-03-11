@@ -5,7 +5,7 @@ library(jagsUI)
 library(MCMCpack)
 library(arm)
 
-dat <- readRDS('Datasets/precipcol_july18.rds')
+dat <- readRDS('Datasets/precipcol_mar19.rds')
 #dat$ly.med=log(dat$ly.med)
 head(dat)
 dim(dat)

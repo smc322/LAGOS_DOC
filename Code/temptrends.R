@@ -123,7 +123,7 @@ saveRDS(tmean.model, "Datasets/tmeandoc_mar19.rds")
 
 #match precip anom for color same way
 
-col.dat<-readRDS("Datasets/color_july18.rds")
+col.dat<-readRDS("Datasets/color_mar19.rds")
 hu12.llid<-lagos$locus[,c("lagoslakeid", "hu12_zoneid")]
 col.hu12<-merge(col.dat, hu12.llid, by="lagoslakeid")
 col.tmean<-merge(col.hu12, tmeanwmed, by=c("hu12_zoneid", "sampleyear"))
