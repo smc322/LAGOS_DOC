@@ -12,7 +12,7 @@ lagos <-lagosne_load(version = "1.087.1")
 
 doc<-readRDS(file="Datasets/JAGS_DOC_july18.rds")
 #doc$lagoslakeid=as.numeric(doc$lagoslakeid)
-col<-readRDS(file="Datasets/JAGS_Color_july18.rds")
+col<-readRDS(file="Datasets/JAGS_Color_mar19.rds")
 tn<-readRDS(file="Datasets/JAGS_TN_july18.rds")
 tp<-readRDS(file="Datasets/JAGS_TP_july18.rds")
 no3<-readRDS(file="Datasets/JAGS_NO3_july18.rds")
