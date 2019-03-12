@@ -21,11 +21,7 @@ no3<-readRDS(file="Datasets/JAGS_NO3_july18.rds")
 locus<-lagos$locus
 cordsids<-unique(locus[,c("lagoslakeid", "nhd_lat", "nhd_long")])
 
-doc$slopeProbs[which(doc$slopeSign==0)] <- 
-  abs(doc$slopeProbs[which(doc$slopeSign==0)]-1)
 
-col$slopeProbs[which(col$slopeSign==0)] <- 
-  abs(col$slopeProbs[which(col$slopeSign==0)]-1)
 
 alpha=255
 colors<- c(rgb(5, 113, 176,max=255, alpha=alpha),
@@ -114,4 +110,35 @@ par(mfrow=c(2,1), oma=c(0,0,0,0), mar=c(0,0,0,0), xpd=NA)
   dev.off()
   
 
+##calculate percentages of pos and neg slopes that are >90% probable
+  
+col.pos<-col[col$slopeSign==1,]
+col.pos.prob<-col.pos$slopeProbs
+length(col.pos.prob[which(col.pos.prob>.9)])
 
+col.neg<-col[col$slopeSign==0,]
+col.neg.prob<-col.neg$slopeProbs
+length(col.neg.prob[which(col.neg.prob>.9)])
+
+doc.pos<-doc[doc$slopeSign==1,]
+doc.pos.prob<-doc.pos$slopeProbs
+length(doc.pos.prob[which(doc.pos.prob>.9)])
+
+doc.neg<-doc[doc$slopeSign==0,]
+doc.neg.prob<-doc.neg$slopeProbs
+length(doc.neg.prob[which(doc.neg.prob>.9)])
+
+#correlate trends for when both DOC and color have data
+
+both<-merge(doc, col, by="lagoslakeid", all.x=T, all.y=T)
+mod<-lm(slopemean.x~slopemean.y, data=both)
+summary(mod)
+
+#make plot for SI to show the lack of relationship between DOC and col trends
+png("Figures/Supplementary/S7_DOCColTrends.png", width=5, height=5, units='in', res=300)
+par(mar=c(4,4,1,1))
+plot(slopemean.x~slopemean.y, data=both, xlab="", ylab="", pch=1, xlim=c(-.12, .12), ylim=c(-.02, .12))
+mtext("Color % change per year", side =1, line=2.5)
+mtext("DOC % change per year", side=2, line=2.5)
+abline(a=.011, b=.126, lty=3)
+dev.off()
