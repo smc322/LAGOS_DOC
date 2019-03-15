@@ -11,7 +11,7 @@ library(gridExtra)
 library(ggthemes)
 library(coda)
 
-dat <- readRDS('../Datasets/color_july18.rds')
+dat <- readRDS('../Datasets/color_mar19.rds')
 #realized some lakes have negative color vals (perhaps from color a conversion - oops. toss those 60 lakes for now to log and we can figure it out if we can add them in later)
 negs<-dat[dat$ly.med<0,]
 dat<-dat[!dat$lagoslakeid %in% negs$lagoslakeid, ]
@@ -24,7 +24,7 @@ length(unique(dat$lagoslakeid))
 
 
 #### Read in Covariate data
-covs <- readRDS('../Datasets/ColorCovars_Nov18.rds')
+covs <- readRDS('../Datasets/ColorCovars_Mar19.rds')
 head(covs)
 dim(covs)
 
@@ -65,11 +65,11 @@ cov_subset[, forest:=logit(forest)]
 cov_subset[, lakemedp:=log(lakemedp+0.1)]
 
 # Standardize covariates
-changeCols <- colnames(cov_subset)[c(2,4:8,11:16,18,20)]
+changeCols <- colnames(cov_subset)[c(2,4:8,11:16,18,20,22)]
 cov_subset[,(changeCols):= lapply(.SD, scale), .SDcols = changeCols]
 
 # Covariate matrix for modeling slopes
-x_mat <- as.matrix(cov_subset[,c(2,4:8,11:16,18,20)])
+x_mat <- as.matrix(cov_subset[,c(2,18,22,4:8,11:16,20)])
 colnames(x_mat)
 cor(x_mat)
 dim(x_mat)
@@ -100,7 +100,7 @@ cat("
     e.a[j] <- alpha[j] - BB.hat[j,1]
     BB.hat[j,2] <- mu.b + b[1] * z[j, 1] + b[2] * z[j, 2] + b[3] * z[j, 3] +  b[4] * z[j, 4] +  b[5] * z[j, 5] +  b[6] * z[j, 6] +
                           b[7] * z[j, 7] + b[8] * z[j, 8] + b[9] * z[j, 9] +  b[10] * z[j, 10] +  b[11] * z[j, 11] +  b[12] * z[j, 12]  +
-                          b[13] * z[j, 13] +  b[14] * z[j, 14]  
+                          b[13] * z[j, 13] +  b[14] * z[j, 14]  + b[15] * z[j, 15] 
     e.b[j] <- beta[j] - BB.hat[j,2]
 
     
@@ -191,10 +191,12 @@ print(out1, dig = 3)
 y = dat$ly.med
 # data level summaries
 rsquared.y <- 1 - mean (apply (out1$sims.list$e.y, 1, var))/ var (y)
+ci.y <- quantile(1 - apply (out1$sims.list$e.y, 1, var)/ var (y),c(0.025,0.975))
 # summaries for the intercept model
 rsquared.a <- 1 - mean (apply (out1$sims.list$e.a, 1, var))/ mean (apply (out1$sims.list$alpha, 1, var))
 # summaries for the slope model
 rsquared.b <- 1 - mean (apply (out1$sims.list$e.b, 1, var))/ mean (apply (out1$sims.list$beta, 1, var))
+ci.b <- quantile(1 - apply (out1$sims.list$e.b, 1, var)/ apply (out1$sims.list$beta, 1, var), c(0.025,0.975))
 print (round (c (rsquared.y, rsquared.a, rsquared.b), 2))
 
 
@@ -252,34 +254,63 @@ beta_sig_indicator <- numeric()
 for(j in 1:dim(x_mat)[2]){
 beta_sig_indicator[j] <- as.numeric(beta_sig[1,j] * beta_sig[2,j] > 0)
 }
+
+
+# Calculate covariate-specific probability that it is in
+# direction of the posterior mean
+# lake specific slopes
+cov.slopes <- out1$sims.list$b
+str(cov.slopes)
+# sign of slope
+cov.slopeSign <- out1$mean$b > 0     
+# calc
+cov.slopeProbs <- numeric()
+for(i in 1:15){
+  if(cov.slopeSign[i] > 0){
+    cov.slopeProbs[i] <- mean(cov.slopes[,i] > 0)
+  } else {
+    cov.slopeProbs[i] <- mean(cov.slopes[,i] < 0)
+  }
+}
+# Trend probs for each lake
+cov.slopeProbs
+
 color <- rep("black", dim(x_mat)[2])
-color[beta_sig_indicator==1] <- "blue"
+color[cov.slopeProbs >= 0.9] <- "blue"
 
 #################
 # Create figure
-pdf("col_cov_plot.pdf", height = 6, width = 6)
+# Panel names
+pan.names <- c(expression(paste(SO[4]," change")),"Precipitation change", "Temperature change",expression(paste(NO[3]," Deposition")),
+               "Runoff", "MAP", "MAT", "Baseflow", "Wetlands", "Agriculture", "Urban", "Forest", "Lake depth", "Lake area", "Median TP")
+# X-axis xoordinate for placing text 
+x.text.loc <- c(2.7, 1.1, 0, 1.8, 1.5, 2.1, 2.6, 2.7, 2.0, 2.0, 3.9, 1.7, 1.8, 2.8, 2.9)
+
+pdf("col_cov_plot_mar19.pdf", height = 6, width = 6)
 def.par <- par(no.readonly = TRUE)
 
 nf <- layout(matrix(c(1:15),nrow=5,ncol=3,byrow=TRUE),  TRUE) 
 # layout.show(nf)
-par(oma=c(2,3.0,0,1),mai=c(0.10,0.1,0.05,0) )
+par(oma=c(2,3.3,0,1),mai=c(0.10,0.1,0.05,0) )
 
 
 size.labels = 1
 size.text = 1
 axissize <- 1
-ylabnums <- seq(min(CRIs[1,]),max(CRIs[,2]),length=5)
+# ylabnums <- seq(min(CRIs[1,]),max(CRIs[2,]),length=5)
+ylabnums <- seq(min(CRIs[1,]),0.18,length=5)
+
 
 x.label = 'Standardized covariate'
-y.label = expression(paste('Lake-specific trend (',beta[j], ')'))
+y.label = expression(paste('Lake-specific color trend (',beta[j], ')'))
 
 for(j in 1:dim(x_mat)[2]){
 plot(x_mat[,j], mean.beta ,pch=16,axes=F, xlab='',ylab='',cex=0.8,type='n',
-     ylim=c(min(CRIs[1,]), max(upper.CIA)) )
-
+     ylim=c(min(CRIs[1,]), 0.18) )
+# ylim=c(min(lower.CIA), max(upper.CIA))
     axis(side=1,cex.axis=axissize , mgp=c(1,0,0),tck= -0.01)
   
-  if( j ==1 | j==4 | j==7 | j==10){
+  if( j ==1 | j==4 | j==7 | j==10 | j==13){
     axis(side=2,cex.axis=axissize , mgp=c(0,0.3,0),tck= -0.01, las=1,at=format(pretty(ylabnums), digits=2), 
          labels=format(pretty(ylabnums), digits=2))
   } else {
@@ -287,30 +318,27 @@ plot(x_mat[,j], mean.beta ,pch=16,axes=F, xlab='',ylab='',cex=0.8,type='n',
   }	
   
 polygon(x=c(fake1[,j],rev(fake1[,j])),y=c(lower.CIA[,j],rev(upper.CIA[,j])),
-        col=adjustcolor('gray',0.5),border=NA)
+        col=adjustcolor('gray',0.8),border=NA)
 
-points(x_mat[,j], mean.beta,pch=16,cex=0.8)
+points(x_mat[,j], mean.beta,pch=16,cex=0.5, col='black')
 
 segments(x0=x_mat[,j], x1=x_mat[,j],
-         y0=CRIs[1,], y1=CRIs[2,], col='black',lwd=1)
+         y0=CRIs[1,], y1=CRIs[2,], lwd=0.5, col='black')
 
 
-lines(fake1[,j],fit1[,j], lwd = 3, col="black", lty = 1)
+lines(fake1[,j],fit1[,j], lwd = 2, col="black", lty = 1)
 
 mtext(x.label, line = 0.4, side = 1, cex = size.text, outer=T)
-mtext(y.label, line = 1.3, side = 2, cex = size.text, outer=T)
+mtext(y.label, line = 1.6, side = 2, cex = size.text, outer=T)
 
-text(quantile(x_mat[,j], 0.99),-0.2, colnames(x_mat)[j], col=color[j])
+text(x.text.loc[j],0.15, pan.names[j], col=color[j])
+text(x.text.loc[j],0.11, round(cov.slopeProbs[j],2), col=color[j])
 
 box()
 } # end for loop
 dev.off()
 
 # END PLOT
-
-
-
-
 
 
 
@@ -333,96 +361,4 @@ for(i in 1:J){
 # Trend probs for each lake
 slopeProbs
 
-#################################
-### lake-specific panel plot
-#################################
-predX <- seq(min(dat$year1), max(dat$year1), length=50) # fake data to
-predict
 
-# Container for predicted values
-est.lineB <- array(NA, c(out1$mcmc.info$n.samples,length(predX),J) )
-
-# Put each groups MCMC draws for all 2 parameters in its own list
-group.params <- list()
-for(m in 1:J){
-  group.params[[m]] <- out1$sims.list$BB[,m,]
-}
-
-
-for(k in 1:J){ # loop over groups (J)
-  for(i in 1:out1$mcmc.info$n.samples){  
-    for(t in 1:length(predX)){
-      est.lineB[i,t,k] <- group.params[[k]][i,1] + group.params[[k]][i,2] *
-        predX[t]
-    }	  
-  }
-}
-dim(est.lineB)
-
-# Get posterior mean and CIs
-groupMean <- apply(est.lineB,c(2,3),mean)
-dim(groupMean)
-upper.CIB <- apply(est.lineB,c(2,3),quantile, 0.975, na.rm=T)
-lower.CIB <- apply(est.lineB,c(2,3),quantile, 0.025, na.rm=T)
-
-# Generate fake y-axis for creating plot
-z <- seq(min(dat$ly.med,na.rm=T),max(dat$ly.med,na.rm=T),length=50) 
-
-################# PLOT ############################
-
-
-pdf("lake_panel.pdf", height = 12, width = 12)
-def.par <- par(no.readonly = TRUE)
-
-size.labels = 1
-size.text = 1
-axissize <- 1
-x.label = 'Year'
-y.label = 'Response'
-
-nf <- layout(matrix(c(1:80),nrow=10,ncol=8,byrow=TRUE),  TRUE) 
-# layout.show(nf)
-par(mar=c(0.0,0.1,0.1,0.1),oma=c(3,4,0,1),mai=c(0.0,0.05,0.05,0) )
-
-# Group-specific plots
-
-for(i in 1:80){
-  
-  plot(predX,z, ylim=c(min(dat$ly.med,na.rm=T),max(dat$ly.med,na.rm=T)),
-       xlim=c(min(dat$year1),max(dat$year1)), axes=F, ylab='', xlab='',
-       type='n')
-  
-  points(dat$year1[dat$ID2==i], dat$ly.med[dat$ID2==i], cex=0.8,
-         pch=16,col='black') 
-  
-  
-  if( i <=72){
-    axis(side=1,cex.axis=axissize , mgp=c(1,0,0),tck= -0.01, labels=F ) 
-  } else {
-    axis(side=1,cex.axis=axissize , mgp=c(1,0,0),tck= -0.01)
-  }	
-  
-  if( i ==1 | i==9 | i==17| i==25| i==33| i==41| i==49| i==57| i==65| i==73 ){
-    axis(side=2,cex.axis=axissize , mgp=c(0,0.3,0),tck= -0.01, las=1)
-  } else {
-    axis(side=2,cex.axis=axissize , mgp=c(1,0,0),tck= -0.01, labels=F)
-  }	
-  
-  # Add CIs
-  polygon(x=c(predX,rev(predX)),y=c(lower.CIB[,i],rev(upper.CIB[,i])),
-          col=adjustcolor('gray',0.2))
-  
-  # Add posterior means
-  lines(predX, groupMean[,i],lwd=1, col='black',lty=1)
-  
-  # text(0.1,1000,i,cex=0.8)
-  box()
-  
-}
-
-mtext(y.label, line = 2.3, side = 2, cex = size.text,outer=T)
-mtext(x.label, line = 1.5, side = 1, cex = size.text, outer=T)
-
-
-par(def.par)
-dev.off()
