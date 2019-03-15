@@ -46,3 +46,13 @@ datalakescovars<-covars.tp[covars.tp$lagoslakeid %in% pc$lagoslakeid | covars.tp
 
 #what are years for precip trend, again?
 pptrawdatmod<-readRDS("Datasets/precipcol_july18.rds")
+
+#summarize precip and temp trends
+colorcovars<-readRDS("Datasets/ColorCovars_Mar19.rds")
+doccovars<-readRDS("Datasets/DOCCovars_Mar19.rds")
+
+alltemps<-c(doccovars$tmeanpctchg, colorcovars$tmeanpctchg)
+allppt<-c(doccovars$pptpctchg, colorcovars$pptpctchg)
+
+length(alltemps[which(alltemps>0)])/length(alltemps)
+length(allppt[which(allppt>0)])/length(allppt)
