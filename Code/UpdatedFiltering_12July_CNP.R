@@ -103,17 +103,17 @@ map(database = "state", regions=c("Minnesota", "Wisconsin", "Iowa", "Illinois","
                                   "Indiana","Michigan","Ohio", "Pennsylvania","New York",
                                   "New Jersey", "Connecticut","Rhode Island","Massachusetts",
                                   "Vermont", "New Hampshire","Maine"), fill = TRUE, col="white", fg="grey30", lwd=1,mar=c(0,0,1,0),oma=c(0,0,0,0))
-points(varloc$nhd_long, varloc$nhd_lat, pch=21, col="black", lwd=.5, bg=rgb(169,169,169, 200,max=255), cex=1)
+points(varloc$nhd_long, varloc$nhd_lat, pch=21, col="black", lwd=.5, bg=rgb(169,169,169, 50,max=255), cex=1)
 dev.off()
 
 }
 
 mapofvar(data.doc.yr, "Figures/DOC_map.pdf")
-mapofvar(data.tp.yr, "Figures/TP_map.pdf")
+mapofvar(data.tp.yr, "Figures/Supplementary/S1_TPAnalysis.pdf")
 mapofvar(data.col.yr, "Figures/old/Col_map.pdf")
-mapofvar(data.tn.yr, "Figures/TN_map.pdf")
-mapofvar(data.no3.yr, "Figures/NO3_map.pdf")
-mapofvar(data.chla.yr, "Figures/Chl_map.pdf")
+mapofvar(data.tn.yr, "Figures/Supplementary/S2_TNAnalysis.pdf")
+mapofvar(data.no3.yr, "Figures/Supplementary/S3_NO3Analysis.pdf")
+mapofvar(data.chla.yr, "Figures/Supplementary/S4_ChlAnalysis.pdf")
 
 #wtf to do about MI?
 doccords<-merge(data.doc.yr, cordsids, by="lagoslakeid", all.x=T, all.y=F)

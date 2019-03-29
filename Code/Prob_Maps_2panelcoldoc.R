@@ -138,7 +138,12 @@ summary(mod)
 png("Figures/Supplementary/S7_DOCColTrends.png", width=5, height=5, units='in', res=300)
 par(mar=c(4,4,1,1))
 plot(slopemean.x~slopemean.y, data=both, xlab="", ylab="", pch=1, xlim=c(-.12, .12), ylim=c(-.02, .12))
+
 mtext("Color % change per year", side =1, line=2.5)
 mtext("DOC % change per year", side=2, line=2.5)
-abline(a=.011, b=.126, lty=3)
+
+abline(v=0, col="darkgrey", lwd=.75, lty=3)
+abline(h=0, col="darkgrey", lwd=.75, lty=3)
+points(slopemean.x~slopemean.y, data=both, pch=1)
+abline(a=.011, b=.126, lty=2)
 dev.off()
