@@ -134,6 +134,11 @@ both<-merge(doc, col, by="lagoslakeid", all.x=T, all.y=T)
 mod<-lm(slopemean.x~slopemean.y, data=both)
 summary(mod)
 
+both.nona<-na.omit(both)
+
+allnegs<-both.nona[both.nona$slopemean.x<0 & both.nona$slopemean.y<0,]
+allpos<-both.nona[both.nona$slopemean.x>0 & both.nona$slopemean.y>0,]
+
 #make plot for SI to show the lack of relationship between DOC and col trends
 png("Figures/Supplementary/S7_DOCColTrends.png", width=5, height=5, units='in', res=300)
 par(mar=c(4,4,1,1))
